@@ -1,6 +1,15 @@
-websocket = (wsurl, msg) {
+websocket = (wsurl, msgs) {
     url = "https://http-ws.seven7four4.repl.co/ws"
-    body = '{"url":"{}","message":"{}"}'.fmt([wsurl, msg])
+	let body
+	if "timeout" in msgs && "endAfter" in msgs {
+			body = '{"url":"{}","messages":"{}", "timeout":"{}", "endAfter":"{}"}'.fmt([wsurl, msgs.messages, msgs.timeout, msgs.endAfter])
+	}
+	else if "timeout" in msgs && !("endAfter" in msgs) {
+			body = '{"url":"{}","messages":"{}", "timeout":"{}"}'.fmt([wsurl, msgs.messages, msgs.timeout])
+	} 
+	else if !("timeout" in msgs) && !("endAfter" in msgs) {
+			body = '{"url":"{}","messages":"{}"}'.fmt([wsurl, msgs.messages])
+	}
     method = "post"
     headers = {
         "Content-Type": "application/json",
@@ -12,19 +21,27 @@ MarebolDB = (id) {
 	let websocket = import spwn_ws
 	let funcs = {
 		get: (v) {
-			let json = websocket("wss://" + id + ".id.repl.co/api", "/get " + v)
+			let json = websocket("wss://" + id + ".id.repl.co/api", {
+			messages: ["/get " + v]
+			})
 			return json
 		},
 		set: (v1, v2) {
-			let json = websocket("wss://" + id + ".id.repl.co/api", "/set " + v1 + " " + v2)
+			let json = websocket("wss://" + id + ".id.repl.co/api", {
+			messages: ["/set " + v1 + " " + v2]
+			})
 			return json
 		},
 		delete: (v) {
-			let json = websocket("wss://" + id + ".id.repl.co/api", "/delete " + v1)
+			let json = websocket("wss://" + id + ".id.repl.co/api", {
+			messages: ["/delete " + v]
+			})
 			return json
 		},
 		listall: (){
-			let json = websocket("wss://" + id + ".id.repl.co/api", "/listall")
+			let json = websocket("wss://" + id + ".id.repl.co/api", {
+			messages: ["/listall"]
+			})
 			return json
 		}
 	}
